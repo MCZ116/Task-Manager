@@ -1,67 +1,56 @@
-import React from 'react';
-import { Droppable, Draggable, DragDropContext, DropResult } from 'react-beautiful-dnd';
-import Task from '../utility/Task';
-import '../styles/TaskTable.css';
+import React from "react";
+import Task from "../utility/Task";
+import "../styles/TaskTable.css";
+import Column from "./Column";
 
 interface TaskTableProps {
-  tasks: Task[];
-  onMoveTask: (sourceIndex: number, destinationIndex: number) => void;
+  blocked: Task[];
+  progress: Task[];
+  testing: Task[];
+  done: Task[];
+  onEdit: (taskId: number) => void;
+  onDelete: (taskId: number) => void;
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ tasks, onMoveTask }) => {
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-    onMoveTask(result.source.index, result.destination.index);
-  };
-
+const TaskTable: React.FC<TaskTableProps> = ({
+  blocked,
+  progress,
+  testing,
+  done,
+  onEdit,
+  onDelete,
+}) => {
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="task-table-container">
-        <Droppable droppableId="task-table" direction="horizontal" type="TASK">
-          {(provided) => (
-            <div
-              className="task-table"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              <div className="table-column">
-                <h3>To Do</h3>
-                <ul>
-                  {tasks.map((task, index) => (
-                    <Draggable
-                      key={task.id.toString()}
-                      draggableId={task.id.toString()}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <li
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                        >
-                          {task.name}
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
-                </ul>
-              </div>
-              <div className="table-column">
-                <h3>In Progress</h3>
-              </div>
-              <div className="table-column">
-                <h3>Testing</h3>
-              </div>
-              <div className="table-column">
-                <h3>Done</h3>
-              </div>
-            </div>
-          )}
-        </Droppable>
-      </div>
-    </DragDropContext>
+    <div className="task-table-container">
+      <Column
+        tasks={blocked}
+        columnName="Blocked"
+        droppableId="blocked"
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+      <Column
+        tasks={progress}
+        columnName="In Progress"
+        droppableId="in-progress"
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+      <Column
+        tasks={testing}
+        columnName="Testing"
+        droppableId="testing"
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+      <Column
+        tasks={done}
+        columnName="Done"
+        droppableId="done"
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    </div>
   );
 };
 

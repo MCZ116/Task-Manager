@@ -1,26 +1,34 @@
 import React from "react";
-import TaskItem from "./TaskItem";
-import Task from "../utility/Task";
-import "../styles/TaskList.css";
 import { Draggable } from "react-beautiful-dnd";
+import Task from "../utility/Task";
+import "../styles/TaskTable.css";
 import { StrictModeDroppable } from "./StrictModeDroppable";
+import TaskItem from "./TaskItem";
 
-interface TaskListProps {
+interface Column {
   tasks: Task[];
+  columnName: string;
+  droppableId: string;
   onEdit: (taskId: number) => void;
   onDelete: (taskId: number) => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
+const Column: React.FC<Column> = ({
+  tasks,
+  columnName,
+  droppableId,
+  onEdit,
+  onDelete,
+}) => {
   return (
-    <StrictModeDroppable droppableId="task-list">
+    <StrictModeDroppable droppableId={droppableId}>
       {(provided) => (
         <div
-          className="task-list"
+          className="table-column"
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h3>To Do</h3>
+          <h3>{columnName}</h3>
           {tasks.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}
@@ -50,4 +58,4 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
   );
 };
 
-export default TaskList;
+export default Column;
