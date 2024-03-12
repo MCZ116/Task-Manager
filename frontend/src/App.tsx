@@ -7,8 +7,8 @@ import Sidebar from "./components/Sidebar";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import TaskTable from "./components/TaskTable";
-import Task from "./utility/Task";
-import TaskColumnOrder from "./utility/TaskColumnOrder";
+import Task from "./models/Task";
+import TaskColumnOrder from "./models/TaskColumnOrder";
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);

@@ -1,5 +1,5 @@
 import React from "react";
-import Task from "../utility/Task";
+import Task from "../models/Task";
 import "../styles/TaskTable.css";
 import Column from "./Column";
 
