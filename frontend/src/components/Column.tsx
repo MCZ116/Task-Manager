@@ -28,7 +28,8 @@ const Column: React.FC<Column> = ({
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h3>{columnName}</h3>
+          <h5>{columnName}</h5>
+          <hr />
           {tasks.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}

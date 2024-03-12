@@ -20,7 +20,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h3>To Do</h3>
+          <h5>To Do</h5>
+          <hr />
           {tasks.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}
