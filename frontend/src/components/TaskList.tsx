@@ -4,14 +4,21 @@ import Task from "../models/Task";
 import "../styles/TaskList.css";
 import { Draggable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
+import AddTaskButton from "./AddTaskButton";
 
 interface TaskListProps {
   tasks: Task[];
   onEdit: (taskId: number) => void;
   onDelete: (taskId: number) => void;
+  onAddTask: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
+const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onEdit,
+  onDelete,
+  onAddTask,
+}) => {
   return (
     <StrictModeDroppable droppableId="task-list">
       {(provided) => (
@@ -20,7 +27,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h5>To Do</h5>
+          <div className="column-header">
+            <h5>To Do </h5>
+            <AddTaskButton onAddTask={onAddTask} />
+          </div>
           <hr />
           {tasks.map((task, index) => (
             <Draggable

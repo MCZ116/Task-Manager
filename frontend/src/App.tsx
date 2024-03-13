@@ -267,7 +267,7 @@ function App() {
 
   return (
     <DragDropContext onDragEnd={handleDragDrop}>
-      <Sidebar onAddTask={handleAddTask} />
+      <Sidebar />
       <div className="content">
         {showTaskForm && (
           <TaskForm
@@ -279,7 +279,12 @@ function App() {
           />
         )}
 
-        <TaskList tasks={tasks} onEdit={handleEdit} onDelete={handleDelete} />
+        <TaskList
+          tasks={tasks}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAddTask={handleAddTask}
+        />
         <TaskTable
           blocked={blocked}
           progress={inProgress}

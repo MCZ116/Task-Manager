@@ -1,22 +1,13 @@
 import React from "react";
 import "../styles/Sidebar.css";
 
-interface SidebarProps {
-  onAddTask: () => void;
-}
+interface SidebarProps {}
 
-const Sidebar: React.FC<SidebarProps> = ({ onAddTask }) => {
-  const handleClick = () => {
-    onAddTask();
-  };
-
+const Sidebar: React.FC<SidebarProps> = () => {
   return (
     <div id="sidebar">
       <div id="sidebar-title">Task Manager</div>
       <hr />
-      <button className="add-button" onClick={handleClick}>
-        Add Task
-      </button>
     </div>
   );
 };
