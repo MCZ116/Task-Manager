@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/AddTaskBtn.css";
+import "../styles/Button.css";
 import AddIcon from "../assets/plus-square-fill.svg";
 
 interface AddTaskButton {

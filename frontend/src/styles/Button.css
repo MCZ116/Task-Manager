@@ -1,0 +1,23 @@
+.plus-icon {
+  vertical-align: -0.125em;
+  filter: invert(100%);
+}
+
+.btn-close {
+  float: right;
+}
+
+.dots-item-menu {
+  vertical-align: -0.125em;
+}
+
+.dropdown {
+  position: relative;
+  float: right;
+  margin-right: 20px;
+}
+
+.delete-icon {
+  vertical-align: -0.125em;
+  margin-left: 5px;
+}

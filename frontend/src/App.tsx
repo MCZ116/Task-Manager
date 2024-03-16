@@ -142,6 +142,7 @@ function App() {
 
     try {
       await axios.delete(`http://localhost:8080/tasks/${taskId}`);
+      setShowTaskForm(false);
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -276,22 +277,17 @@ function App() {
             }
             onSave={handleSaveTask}
             onClose={handleCloseTaskForm}
+            onDelete={handleDelete}
           />
         )}
 
-        <TaskList
-          tasks={tasks}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAddTask={handleAddTask}
-        />
+        <TaskList tasks={tasks} onEdit={handleEdit} onAddTask={handleAddTask} />
         <TaskTable
           blocked={blocked}
           progress={inProgress}
           testing={testing}
           done={done}
           onEdit={handleEdit}
-          onDelete={handleDelete}
         />
       </div>
     </DragDropContext>

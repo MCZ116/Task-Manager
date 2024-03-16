@@ -9,7 +9,6 @@ interface TaskTableProps {
   testing: Task[];
   done: Task[];
   onEdit: (taskId: number) => void;
-  onDelete: (taskId: number) => void;
 }
 
 const TaskTable: React.FC<TaskTableProps> = ({
@@ -18,7 +17,6 @@ const TaskTable: React.FC<TaskTableProps> = ({
   testing,
   done,
   onEdit,
-  onDelete,
 }) => {
   return (
     <div className="task-table-container">
@@ -27,28 +25,24 @@ const TaskTable: React.FC<TaskTableProps> = ({
         columnName="Blocked"
         droppableId="blocked"
         onEdit={onEdit}
-        onDelete={onDelete}
       />
       <Column
         tasks={progress}
         columnName="In Progress"
         droppableId="in-progress"
         onEdit={onEdit}
-        onDelete={onDelete}
       />
       <Column
         tasks={testing}
         columnName="Testing"
         droppableId="testing"
         onEdit={onEdit}
-        onDelete={onDelete}
       />
       <Column
         tasks={done}
         columnName="Done"
         droppableId="done"
         onEdit={onEdit}
-        onDelete={onDelete}
       />
     </div>
   );

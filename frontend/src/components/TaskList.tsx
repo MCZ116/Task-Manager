@@ -9,16 +9,10 @@ import AddTaskButton from "./AddTaskButton";
 interface TaskListProps {
   tasks: Task[];
   onEdit: (taskId: number) => void;
-  onDelete: (taskId: number) => void;
   onAddTask: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({
-  tasks,
-  onEdit,
-  onDelete,
-  onAddTask,
-}) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onAddTask }) => {
   return (
     <StrictModeDroppable droppableId="task-list">
       {(provided) => (
@@ -44,12 +38,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   {...provided.draggableProps}
                   ref={provided.innerRef}
                 >
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
+                  <TaskItem key={task.id} task={task} onEdit={onEdit} />
                 </div>
               )}
             </Draggable>

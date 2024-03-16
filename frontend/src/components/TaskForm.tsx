@@ -4,19 +4,35 @@ import "../styles/TaskForm.css";
 import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import CloseButton from "./CloseButton";
+import TaskDropDownMenu from "./TaskDropdownMenu";
 
 interface TaskFormProps {
   task: Task;
   onSave: (updatedTask: Task) => void;
   onClose: () => void;
+  onDelete: (taskId: number) => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => {
+const TaskForm: React.FC<TaskFormProps> = ({
+  task,
+  onSave,
+  onClose,
+  onDelete,
+}) => {
   const [formData, setFormData] = useState<Task>({ ...task });
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -51,12 +67,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => {
     return `${day}/${month}/${year}`;
   };
 
+  const handleDeleteClick = () => {
+    onDelete(task.id);
+  };
+
   return (
     <div className="task-form">
-      <h2>Edit Task</h2>
+      <CloseButton onClose={onClose} />
+      <TaskDropDownMenu onDelete={handleDeleteClick} />
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Name:</label>
+          <label>Title:</label>
           <input
             type="text"
             name="name"
@@ -66,11 +87,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => {
         </div>
         <div>
           <label>Description:</label>
-          <input
-            type="text"
+          <textarea
             name="description"
             value={formData.description}
-            onChange={handleInputChange}
+            onChange={handleTextAreaChange}
           />
         </div>
         <div>
@@ -82,11 +102,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSave, onClose }) => {
           />
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
-        <button className="rounded-button" type="submit">
+        <button className="btn btn-primary" type="submit">
           Save
-        </button>
-        <button className="rounded-button" type="button" onClick={onClose}>
-          Cancel
         </button>
       </form>
     </div>
