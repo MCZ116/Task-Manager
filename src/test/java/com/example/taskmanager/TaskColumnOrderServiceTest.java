@@ -3,6 +3,7 @@ package com.example.taskmanager;
 import com.example.taskmanager.models.TaskColumnOrder;
 import com.example.taskmanager.repository.TaskColumnOrderRepository;
 import com.example.taskmanager.service.TaskColumnOrderService;
+import com.example.taskmanager.util.TaskColumnNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -10,8 +11,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class TaskColumnOrderServiceTest {
@@ -53,6 +56,27 @@ class TaskColumnOrderServiceTest {
 
         assertEquals(order, result);
         verify(taskColumnOrderRepository, times(1)).save(order);
+    }
+
+    @Test
+    void getTaskColumnOrderById_ExistingTaskId_ReturnsTask() {
+        Long taskColumnId = 1L;
+        TaskColumnOrder order = new TaskColumnOrder("testColunmn1", 0);
+        when(taskColumnOrderRepository.findById(taskColumnId)).thenReturn(Optional.of(order));
+
+        TaskColumnOrder result = taskColumnOrderService.getTaskColumnOrderById(taskColumnId);
+
+        assertEquals(order, result);
+        verify(taskColumnOrderRepository, times(1)).findById(taskColumnId);
+    }
+
+    @Test
+    void getTaskColumnOrder_NonExistingTaskId_ThrowsTaskNotFoundException() {
+        Long taskColumnId = 1L;
+        when(taskColumnOrderRepository.findById(taskColumnId)).thenReturn(Optional.empty());
+
+        assertThrows(TaskColumnNotFoundException.class, () -> taskColumnOrderService.getTaskColumnOrderById(taskColumnId));
+        verify(taskColumnOrderRepository, times(1)).findById(taskColumnId);
     }
 
 }

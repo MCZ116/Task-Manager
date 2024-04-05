@@ -7,17 +7,21 @@ import { StrictModeDroppable } from "./StrictModeDroppable";
 import AddTaskButton from "./AddTaskButton";
 
 interface TaskListProps {
-  tasks: Task[];
-  onEdit: (taskId: number) => void;
+  readyToDo: Task[];
+  onEdit: (task: Task) => void;
   onAddTask: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onAddTask }) => {
+const TaskList: React.FC<TaskListProps> = ({
+  readyToDo,
+  onEdit,
+  onAddTask,
+}) => {
   return (
-    <StrictModeDroppable droppableId="task-list">
+    <StrictModeDroppable droppableId="readyToDo">
       {(provided) => (
         <div
-          className="task-list"
+          className="ready-to-do"
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
@@ -26,7 +30,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onAddTask }) => {
             <AddTaskButton onAddTask={onAddTask} />
           </div>
           <hr />
-          {tasks.map((task, index) => (
+          {readyToDo.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}
               key={task.id}

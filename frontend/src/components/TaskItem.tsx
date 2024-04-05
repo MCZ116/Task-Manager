@@ -1,15 +1,14 @@
-import React from "react";
 import "../styles/TaskItem.css";
 import Task from "../models/Task";
 
 interface TaskItemProps {
   task: Task;
-  onEdit: (taskId: number) => void;
+  onEdit: (task: Task) => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit }) => {
   const handleEditClick = () => {
-    onEdit(task.id);
+    onEdit(task);
   };
 
   return (

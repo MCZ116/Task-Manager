@@ -6,12 +6,16 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CloseButton from "./CloseButton";
 import TaskDropDownMenu from "./TaskDropdownMenu";
+import TaskState from "../models/TaskState";
+import initialTaskState from "../models/InitialTaskState";
+
+const TASKS_API_URL = "http://localhost:8080/tasks";
 
 interface TaskFormProps {
   task: Task;
-  onSave: (updatedTask: Task) => void;
+  onSave: (updatedTask: Task, taskState: TaskState) => void;
   onClose: () => void;
-  onDelete: (taskId: number) => void;
+  onDelete: (taskId: number, taskState: TaskState) => void;
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({
@@ -49,11 +53,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
     try {
       const formattedDate = formatDate(dueDate);
       const updatedTask = { ...formData, dueDate: formattedDate };
-      const response = await axios.post<Task>(
-        "http://localhost:8080/tasks",
-        updatedTask
-      );
-      onSave(response.data);
+      const response = await axios.post<Task>(TASKS_API_URL, updatedTask);
+      onSave(response.data, initialTaskState);
       onClose();
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -68,7 +69,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   const handleDeleteClick = () => {
-    onDelete(task.id);
+    onDelete(task.id, initialTaskState);
   };
 
   return (

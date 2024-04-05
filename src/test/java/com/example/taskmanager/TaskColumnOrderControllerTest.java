@@ -1,8 +1,11 @@
 package com.example.taskmanager;
 
 import com.example.taskmanager.controller.TaskColumnOrderController;
+import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.TaskColumnOrder;
 import com.example.taskmanager.service.TaskColumnOrderService;
+import com.example.taskmanager.util.TaskColumnNotFoundException;
+import com.example.taskmanager.util.TaskNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class TaskColumnOrderControllerTest {
@@ -54,6 +58,27 @@ public class TaskColumnOrderControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(order, response.getBody());
+    }
+
+    @Test
+    public void testGetTaskById() {
+        long taskColumnId = 1L;
+        TaskColumnOrder order = new TaskColumnOrder("testColunmn1", 0);
+
+        when(taskColumnOrderService.getTaskColumnOrderById(taskColumnId)).thenReturn(order);
+
+        ResponseEntity<TaskColumnOrder> response = taskColumnOrderController.getTaskColumnOrderById(taskColumnId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(order, response.getBody());
+    }
+
+    @Test
+    public void testGetTaskByIdNotFound() {
+        long taskColumnId = 1L;
+        when(taskColumnOrderService.getTaskColumnOrderById(taskColumnId)).thenReturn(null);
+
+        assertThrows(TaskColumnNotFoundException.class, () -> taskColumnOrderController.getTaskColumnOrderById(taskColumnId));
     }
 
 }

@@ -9,7 +9,7 @@ interface Column {
   tasks: Task[];
   columnName: string;
   droppableId: string;
-  onEdit: (taskId: number) => void;
+  onEdit: (task: Task) => void;
 }
 
 const Column: React.FC<Column> = ({

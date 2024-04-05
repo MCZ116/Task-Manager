@@ -8,7 +8,7 @@ interface TaskTableProps {
   progress: Task[];
   testing: Task[];
   done: Task[];
-  onEdit: (taskId: number) => void;
+  onEdit: (task: Task) => void;
 }
 
 const TaskTable: React.FC<TaskTableProps> = ({
@@ -29,7 +29,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
       <Column
         tasks={progress}
         columnName="In Progress"
-        droppableId="in-progress"
+        droppableId="inProgress"
         onEdit={onEdit}
       />
       <Column

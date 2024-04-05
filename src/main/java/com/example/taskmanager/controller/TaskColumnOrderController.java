@@ -1,7 +1,9 @@
 package com.example.taskmanager.controller;
 
+import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.TaskColumnOrder;
 import com.example.taskmanager.service.TaskColumnOrderService;
+import com.example.taskmanager.util.TaskColumnNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,16 @@ public class TaskColumnOrderController {
     public ResponseEntity<?> saveTaskColumnOrder(@RequestBody TaskColumnOrder taskColumnOrder) {
         TaskColumnOrder result = taskColumnOrderService.saveTaskColumnOrder(taskColumnOrder);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @CrossOrigin(origins = "http://localhost:5173")
+    @GetMapping("/{columnId}")
+    public ResponseEntity<TaskColumnOrder> getTaskColumnOrderById(@PathVariable Long columnId) {
+        TaskColumnOrder taskColumnOrder = taskColumnOrderService.getTaskColumnOrderById(columnId);
+        if (taskColumnOrder == null ) {
+            throw new TaskColumnNotFoundException("Task column not found with id: " + columnId);
+        }
+        return ResponseEntity.ok(taskColumnOrder);
     }
 
 
