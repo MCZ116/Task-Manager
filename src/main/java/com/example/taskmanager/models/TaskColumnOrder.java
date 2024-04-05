@@ -1,14 +1,11 @@
 package com.example.taskmanager.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class TaskColumnOrder {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long taskId;
 
     private String columnName;
