@@ -30,7 +30,6 @@ function App() {
       const columnOrderResponse = await axios.get<TaskColumnOrder[]>(
         TASKS_COLUMN_ORDER_API_URL
       );
-
       distributeTasksToColumns(tasksResponse.data, columnOrderResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -41,45 +40,24 @@ function App() {
     tasks: Task[],
     columnOrder: TaskColumnOrder[]
   ) => {
-    const newBlocked: Task[] = [];
-    const newProgress: Task[] = [];
-    const newTesting: Task[] = [];
-    const newDone: Task[] = [];
-    const readyToDo: Task[] = [];
+    const columnTasksMap: { [key: string]: Task[] } = {};
 
-    tasks.forEach((task) => {
-      const order = columnOrder.find((item) => item.taskId === task.id);
-
-      if (order) {
-        switch (order.columnName) {
-          case "blocked":
-            newBlocked.splice(order.index, 0, task);
-            break;
-          case "inProgress":
-            newProgress.splice(order.index, 0, task);
-            break;
-          case "testing":
-            newTesting.splice(order.index, 0, task);
-            break;
-          case "done":
-            newDone.splice(order.index, 0, task);
-            break;
-          default:
-            readyToDo.splice(order.index, 0, task);
-            break;
-        }
-      } else {
-        console.warn(`No order found for task with ID ${task.id}`);
+    columnOrder.forEach((order) => {
+      if (!columnTasksMap[order.columnName]) {
+        columnTasksMap[order.columnName] = [];
       }
     });
 
+    tasks.forEach((task) => {
+      const order = columnOrder.find((item) => item.taskId === task.id);
+      const columnName = order?.columnName || "readyToDo"; // Default to 'readyToDo' if no order found
+
+      columnTasksMap[columnName].splice(order?.index || 0, 0, task);
+    });
+
     setTaskState({
-      ...taskState,
-      blocked: newBlocked,
-      inProgress: newProgress,
-      testing: newTesting,
-      done: newDone,
-      readyToDo: readyToDo,
+      ...initialTaskState,
+      ...columnTasksMap,
     });
   };
 
