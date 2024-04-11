@@ -83,7 +83,7 @@ function App() {
           ...prevState,
           readyToDo: [savedTask, ...prevState.readyToDo],
         }));
-        saveTaskPosition(savedTask.id, "ready-to-do", 0);
+        saveTaskPosition(savedTask.id, "readyToDo", 0);
       } else {
         const response = await axios.put(
           `${TASKS_API_URL}/${updatedTask.id}`,
@@ -180,7 +180,9 @@ function App() {
       );
       setTasksForColumn(sourceColumnId, updatedTasks);
 
-      saveTaskPosition(movedTask.id, destinationColumnId, destination.index);
+      updatedTasks.forEach((task, index) => {
+        saveTaskPosition(task.id, sourceColumnId, index);
+      });
     } else {
       const sourceTasks = Array.from(getTasks(sourceColumnId, taskState));
       const destinationTasks = Array.from(
@@ -192,7 +194,9 @@ function App() {
       setTasksForColumn(sourceColumnId, sourceTasks);
       setTasksForColumn(destinationColumnId, destinationTasks);
 
-      saveTaskPosition(movedTask.id, destinationColumnId, destination.index);
+      destinationTasks.forEach((task, index) => {
+        saveTaskPosition(task.id, destinationColumnId, index);
+      });
     }
   };
 
