@@ -42,23 +42,35 @@ function App() {
   ) => {
     const columnTasksMap: { [key: string]: Task[] } = {};
 
-    columnOrder.forEach((order) => {
-      if (!columnTasksMap[order.columnName]) {
-        columnTasksMap[order.columnName] = [];
-      }
+    Object.keys(initialTaskState).forEach((columnName) => {
+      columnTasksMap[columnName] = [];
     });
 
+    const tasksByColumn: { [key: string]: Task[] } = {};
     tasks.forEach((task) => {
       const order = columnOrder.find((item) => item.taskId === task.id);
       const columnName = order?.columnName || "readyToDo"; // Default to 'readyToDo' if no order found
 
-      columnTasksMap[columnName].splice(order?.index || 0, 0, task);
+      if (!tasksByColumn[columnName]) {
+        tasksByColumn[columnName] = [];
+      }
+      tasksByColumn[columnName].push(task);
     });
 
-    setTaskState({
-      ...initialTaskState,
-      ...columnTasksMap,
+    Object.keys(tasksByColumn).forEach((columnName) => {
+      const tasksInColumn = tasksByColumn[columnName];
+      tasksInColumn.sort((taskA, taskB) => {
+        const orderA = columnOrder.find((item) => item.taskId === taskA.id);
+        const orderB = columnOrder.find((item) => item.taskId === taskB.id);
+        return (orderA?.index || 0) - (orderB?.index || 0);
+      });
+      columnTasksMap[columnName] = tasksInColumn;
     });
+
+    setTaskState((prevState) => ({
+      ...prevState,
+      ...columnTasksMap,
+    }));
   };
 
   const handleAddTask = () => {
