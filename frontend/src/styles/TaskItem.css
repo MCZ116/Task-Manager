@@ -1,11 +1,11 @@
 .task-item {
-  margin-bottom: 20px;
-  margin-right: 7px;
+  margin: 5px;
   padding: 15px;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
-  max-width: 100%;
+  width: 200px;
+  height: auto;
 }
 
 .task-item strong {

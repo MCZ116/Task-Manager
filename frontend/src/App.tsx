@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
+import { useState, useEffect } from "react";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import axios from "axios";
 import "./App.css";
 import "./styles/TaskTable.css";
@@ -7,71 +7,142 @@ import Sidebar from "./components/Sidebar";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import TaskTable from "./components/TaskTable";
-import Task from "./utility/Task";
+import Task from "./models/Task";
+import TaskColumnOrder from "./models/TaskColumnOrder";
+import TaskState from "./models/TaskState";
+import initialTaskState from "./models/InitialTaskState";
+import { formatDateAsDMY } from "./utility/DateFormatter";
+
+const TASKS_API_URL = "http://localhost:8080/tasks";
+const TASKS_COLUMN_ORDER_API_URL = "http://localhost:8080/tasksColumnOrder";
 
 function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [blocked, setBlocked] = useState<Task[]>([]);
-  const [inProgress, setProgress] = useState<Task[]>([]);
-  const [testing, setTesting] = useState<Task[]>([]);
-  const [done, setDone] = useState<Task[]>([]);
-
+  const [taskState, setTaskState] = useState<TaskState>(initialTaskState);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showTaskForm, setShowTaskForm] = useState(false);
 
   useEffect(() => {
-    fetchTasks();
+    fetchData();
   }, []);
 
-  const fetchTasks = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get<Task[]>("http://localhost:8080/tasks");
-      setTasks(response.data);
+      const tasksResponse = await axios.get<Task[]>(TASKS_API_URL);
+      const columnOrderResponse = await axios.get<TaskColumnOrder[]>(
+        TASKS_COLUMN_ORDER_API_URL
+      );
+      distributeTasksToColumns(tasksResponse.data, columnOrderResponse.data);
     } catch (error) {
-      console.error("Error fetching tasks:", error);
+      console.error("Error fetching data:", error);
     }
+  };
+
+  const distributeTasksToColumns = (
+    tasks: Task[],
+    columnOrder: TaskColumnOrder[]
+  ) => {
+    const columnTasksMap: { [key: string]: Task[] } = {};
+
+    Object.keys(initialTaskState).forEach((columnName) => {
+      columnTasksMap[columnName] = [];
+    });
+
+    const tasksByColumn: { [key: string]: Task[] } = {};
+    tasks.forEach((task) => {
+      const order = columnOrder.find((item) => item.taskId === task.id);
+      const columnName = order?.columnName || "readyToDo"; // Default to 'readyToDo' if no order found
+
+      if (!tasksByColumn[columnName]) {
+        tasksByColumn[columnName] = [];
+      }
+      tasksByColumn[columnName].push(task);
+    });
+
+    Object.keys(tasksByColumn).forEach((columnName) => {
+      const tasksInColumn = tasksByColumn[columnName];
+      tasksInColumn.sort((taskA, taskB) => {
+        const orderA = columnOrder.find((item) => item.taskId === taskA.id);
+        const orderB = columnOrder.find((item) => item.taskId === taskB.id);
+        return (orderA?.index || 0) - (orderB?.index || 0);
+      });
+      columnTasksMap[columnName] = tasksInColumn;
+    });
+
+    setTaskState((prevState) => ({
+      ...prevState,
+      ...columnTasksMap,
+    }));
   };
 
   const handleAddTask = () => {
     setShowTaskForm(true);
-    setEditingTask({ id: 0, name: "", description: "", dueDate: "" });
+    setEditingTask({ id: 0, name: "", description: "", dueDate: new Date() });
   };
-
-  const handleEdit = (taskId: number) => {
-    const taskToEdit = tasks.find((task) => task.id === taskId);
-    if (taskToEdit) {
-      setEditingTask(taskToEdit);
-      setShowTaskForm(true);
-    }
+  const handleEdit = (task: Task) => {
+    const formattedDate = formatDateAsDMY(task.dueDate);
+    setEditingTask((prevState) => ({
+      ...prevState,
+      ...task,
+      dueDate: formattedDate,
+    }));
+    setShowTaskForm(true);
   };
 
   const handleSaveTask = async (updatedTask: Task) => {
     try {
-      let response;
-      if (editingTask?.id !== 0) {
-        response = await axios.put(
-          `http://localhost:8080/tasks/${updatedTask.id}`,
-          updatedTask
-        );
+      const isNewTask = editingTask?.id === 0;
+
+      if (isNewTask) {
+        const response = await axios.post<Task>(TASKS_API_URL, updatedTask);
+        const savedTask = response.data;
+
+        setTaskState((prevState) => ({
+          ...prevState,
+          readyToDo: [savedTask, ...prevState.readyToDo],
+        }));
+        saveTaskPosition(savedTask.id, "readyToDo", 0);
       } else {
-        response = await axios.post<Task>(
-          "http://localhost:8080/tasks",
+        const response = await axios.put(
+          `${TASKS_API_URL}/${updatedTask.id}`,
           updatedTask
         );
+        const savedTask = response.data;
+
+        const taskColumnOrderResponse = await axios.get<TaskColumnOrder>(
+          `${TASKS_COLUMN_ORDER_API_URL}/${updatedTask.id}`
+        );
+        const editedTask = taskColumnOrderResponse.data;
+        const columnKey = determineColumnKey(editedTask.columnName);
+
+        setTaskState((prevState) => ({
+          ...prevState,
+          [columnKey]: prevState[columnKey].map((task) =>
+            task.id === savedTask.id ? savedTask : task
+          ),
+        }));
       }
 
-      const savedTask = response.data;
-      if (editingTask?.id !== 0) {
-        setTasks((prevTasks) =>
-          prevTasks.map((task) => (task.id === savedTask.id ? savedTask : task))
-        );
-      } else {
-        setTasks((prevTasks) => [...prevTasks, savedTask]);
-      }
       setShowTaskForm(false);
       setEditingTask(null);
     } catch (error) {
       console.error("Error saving task:", error);
+    }
+  };
+
+  const determineColumnKey = (
+    status: string
+  ): keyof typeof initialTaskState => {
+    switch (status) {
+      case "blocked":
+        return "blocked";
+      case "inProgress":
+        return "inProgress";
+      case "testing":
+        return "testing";
+      case "done":
+        return "done";
+      default:
+        return "readyToDo";
     }
   };
 
@@ -81,17 +152,28 @@ function App() {
   };
 
   const handleDelete = async (taskId: number) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    setTasks(updatedTasks);
-
     try {
-      await axios.delete(`http://localhost:8080/tasks/${taskId}`);
+      await axios.delete(`${TASKS_API_URL}/${taskId}`);
+
+      setTaskState((prevState) => {
+        const updatedState: TaskState = { ...prevState };
+        Object.keys(updatedState).forEach((columnName) => {
+          if (Array.isArray(updatedState[columnName])) {
+            updatedState[columnName as keyof TaskState] = (
+              updatedState[columnName as keyof TaskState] as Task[]
+            ).filter((task) => task.id !== taskId);
+          }
+        });
+        return updatedState;
+      });
+
+      setShowTaskForm(false);
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
 
-  const handleDragDrop = (results: DropResult) => {
+  const handleDragDrop = async (results: DropResult) => {
     const { source, destination } = results;
 
     if (!destination) return;
@@ -105,57 +187,77 @@ function App() {
     )
       return;
 
+    const movedTask = getTasks(sourceColumnId, taskState)[source.index];
+
     if (sourceColumnId === destinationColumnId) {
       const updatedTasks = reorder(
-        getTasks(sourceColumnId),
+        getTasks(sourceColumnId, taskState),
         source.index,
         destination.index
       );
       setTasksForColumn(sourceColumnId, updatedTasks);
+
+      updatedTasks.forEach((task, index) => {
+        saveTaskPosition(task.id, sourceColumnId, index);
+      });
     } else {
-      const sourceTasks = Array.from(getTasks(sourceColumnId));
-      const destinationTasks = Array.from(getTasks(destinationColumnId));
-      const [movedTask] = sourceTasks.splice(source.index, 1);
+      const sourceTasks = Array.from(getTasks(sourceColumnId, taskState));
+      const destinationTasks = Array.from(
+        getTasks(destinationColumnId, taskState)
+      );
+      sourceTasks.splice(source.index, 1);
       destinationTasks.splice(destination.index, 0, movedTask);
+
       setTasksForColumn(sourceColumnId, sourceTasks);
       setTasksForColumn(destinationColumnId, destinationTasks);
+
+      destinationTasks.forEach((task, index) => {
+        saveTaskPosition(task.id, destinationColumnId, index);
+      });
     }
   };
 
-  const getTasks = (columnId: string): Task[] => {
-    console.log(columnId);
+  const saveTaskPosition = async (
+    taskId: number,
+    columnName: string,
+    index: number
+  ) => {
+    const postData = {
+      taskId: taskId,
+      columnName: columnName,
+      index: index,
+    };
+
+    try {
+      await axios.post(TASKS_COLUMN_ORDER_API_URL, postData);
+    } catch (error) {
+      console.error("Error updating task order:", error);
+    }
+  };
+
+  const getTasks = (
+    columnId: string,
+    taskState: typeof initialTaskState
+  ): Task[] => {
     switch (columnId) {
       case "blocked":
-        return blocked;
-      case "in-progress":
-        return inProgress;
+        return taskState.blocked;
+      case "inProgress":
+        return taskState.inProgress;
       case "testing":
-        return testing;
+        return taskState.testing;
       case "done":
-        return done;
+        return taskState.done;
       default:
-        return tasks;
+        return taskState.readyToDo;
     }
   };
 
   const setTasksForColumn = (columnId: string, updatedTasks: Task[]) => {
-    console.log(columnId);
-    switch (columnId) {
-      case "blocked":
-        setBlocked(updatedTasks);
-        break;
-      case "in-progress":
-        setProgress(updatedTasks);
-        break;
-      case "testing":
-        setTesting(updatedTasks);
-        break;
-      case "done":
-        setDone(updatedTasks);
-        break;
-      default:
-        setTasks(updatedTasks);
-    }
+    setTaskState((prevTaskState) => ({
+      ...prevTaskState,
+      [columnId]: updatedTasks,
+    }));
   };
 
   const reorder = (
@@ -171,26 +273,35 @@ function App() {
 
   return (
     <DragDropContext onDragEnd={handleDragDrop}>
-      <Sidebar onAddTask={handleAddTask} />
+      <Sidebar />
       <div className="content">
         {showTaskForm && (
           <TaskForm
             task={
-              editingTask || { id: 0, name: "", description: "", dueDate: "" }
+              editingTask || {
+                id: 0,
+                name: "",
+                description: "",
+                dueDate: new Date(),
+              }
             }
             onSave={handleSaveTask}
             onClose={handleCloseTaskForm}
+            onDelete={handleDelete}
           />
         )}
 
-        <TaskList tasks={tasks} onEdit={handleEdit} onDelete={handleDelete} />
-        <TaskTable
-          blocked={blocked}
-          progress={inProgress}
-          testing={testing}
-          done={done}
+        <TaskList
+          readyToDo={taskState.readyToDo}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onAddTask={handleAddTask}
+        />
+        <TaskTable
+          blocked={taskState.blocked}
+          progress={taskState.inProgress}
+          testing={taskState.testing}
+          done={taskState.done}
+          onEdit={handleEdit}
         />
       </div>
     </DragDropContext>

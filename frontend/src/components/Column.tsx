@@ -1,6 +1,6 @@
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
-import Task from "../utility/Task";
+import Task from "../models/Task";
 import "../styles/TaskTable.css";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 import TaskItem from "./TaskItem";
@@ -9,8 +9,7 @@ interface Column {
   tasks: Task[];
   columnName: string;
   droppableId: string;
-  onEdit: (taskId: number) => void;
-  onDelete: (taskId: number) => void;
+  onEdit: (task: Task) => void;
 }
 
 const Column: React.FC<Column> = ({
@@ -18,7 +17,6 @@ const Column: React.FC<Column> = ({
   columnName,
   droppableId,
   onEdit,
-  onDelete,
 }) => {
   return (
     <StrictModeDroppable droppableId={droppableId}>
@@ -28,7 +26,8 @@ const Column: React.FC<Column> = ({
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h3>{columnName}</h3>
+          <h5>{columnName}</h5>
+          <hr />
           {tasks.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}
@@ -41,12 +40,7 @@ const Column: React.FC<Column> = ({
                   {...provided.draggableProps}
                   ref={provided.innerRef}
                 >
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
+                  <TaskItem key={task.id} task={task} onEdit={onEdit} />
                 </div>
               )}
             </Draggable>

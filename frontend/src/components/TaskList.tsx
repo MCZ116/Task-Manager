@@ -1,27 +1,36 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import Task from "../utility/Task";
+import Task from "../models/Task";
 import "../styles/TaskList.css";
 import { Draggable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
+import AddTaskButton from "./AddTaskButton";
 
 interface TaskListProps {
-  tasks: Task[];
-  onEdit: (taskId: number) => void;
-  onDelete: (taskId: number) => void;
+  readyToDo: Task[];
+  onEdit: (task: Task) => void;
+  onAddTask: () => void;
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
+const TaskList: React.FC<TaskListProps> = ({
+  readyToDo,
+  onEdit,
+  onAddTask,
+}) => {
   return (
-    <StrictModeDroppable droppableId="task-list">
+    <StrictModeDroppable droppableId="readyToDo">
       {(provided) => (
         <div
-          className="task-list"
+          className="ready-to-do"
           {...provided.droppableProps}
           ref={provided.innerRef}
         >
-          <h3>To Do</h3>
-          {tasks.map((task, index) => (
+          <div className="column-header">
+            <h5>To Do </h5>
+            <AddTaskButton onAddTask={onAddTask} />
+          </div>
+          <hr />
+          {readyToDo.map((task, index) => (
             <Draggable
               draggableId={task.id.toString()}
               key={task.id}
@@ -33,12 +42,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onEdit, onDelete }) => {
                   {...provided.draggableProps}
                   ref={provided.innerRef}
                 >
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                  />
+                  <TaskItem key={task.id} task={task} onEdit={onEdit} />
                 </div>
               )}
             </Draggable>

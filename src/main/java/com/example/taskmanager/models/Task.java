@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Task {
@@ -25,10 +24,10 @@ public class Task {
 
     }
 
-    public Task(String name, String description, String dueDate) {
+    public Task(String name, String description, LocalDate dueDate) {
         this.name = name;
         this.description = description;
-        this.dueDate = LocalDate.parse(dueDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        this.dueDate = dueDate;
     }
 
     public Long getId() {
@@ -57,11 +56,6 @@ public class Task {
 
     public LocalDate getDueDate() {
         return dueDate;
-    }
-
-    public String getDueDateString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return dueDate.format(formatter);
     }
 
     public void setDueDate(LocalDate dueDate) {
