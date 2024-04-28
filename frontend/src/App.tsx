@@ -11,6 +11,7 @@ import Task from "./models/Task";
 import TaskColumnOrder from "./models/TaskColumnOrder";
 import TaskState from "./models/TaskState";
 import initialTaskState from "./models/InitialTaskState";
+import { formatDateAsDMY } from "./utility/DateFormatter";
 
 const TASKS_API_URL = "http://localhost:8080/tasks";
 const TASKS_COLUMN_ORDER_API_URL = "http://localhost:8080/tasksColumnOrder";
@@ -75,11 +76,15 @@ function App() {
 
   const handleAddTask = () => {
     setShowTaskForm(true);
-    setEditingTask({ id: 0, name: "", description: "", dueDate: "" });
+    setEditingTask({ id: 0, name: "", description: "", dueDate: new Date() });
   };
-
   const handleEdit = (task: Task) => {
-    setEditingTask(task);
+    const formattedDate = formatDateAsDMY(task.dueDate);
+    setEditingTask((prevState) => ({
+      ...prevState,
+      ...task,
+      dueDate: formattedDate,
+    }));
     setShowTaskForm(true);
   };
 
@@ -273,7 +278,12 @@ function App() {
         {showTaskForm && (
           <TaskForm
             task={
-              editingTask || { id: 0, name: "", description: "", dueDate: "" }
+              editingTask || {
+                id: 0,
+                name: "",
+                description: "",
+                dueDate: new Date(),
+              }
             }
             onSave={handleSaveTask}
             onClose={handleCloseTaskForm}

@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +35,8 @@ public class TaskControllerTest {
     @Test
     public void testGetAllTasks() {
         List<Task> tasks = new ArrayList<>();
-        tasks.add(new Task("Task 1", "Description 1", "01/01/2022"));
-        tasks.add(new Task("Task 2", "Description 2", "02/01/2022"));
+        tasks.add(new Task("Task 1", "Description 1", LocalDate.now()));
+        tasks.add(new Task("Task 2", "Description 2", LocalDate.now()));
 
         when(taskService.getAllTasks()).thenReturn(tasks);
 
@@ -48,7 +49,7 @@ public class TaskControllerTest {
     @Test
     public void testGetTaskById() {
         long taskId = 1L;
-        Task task = new Task("Task 1", "Description 1", "01/01/2022");
+        Task task = new Task("Task 1", "Description 1", LocalDate.now());
 
         when(taskService.getTaskById(taskId)).thenReturn(task);
 
@@ -68,7 +69,7 @@ public class TaskControllerTest {
 
     @Test
     public void testAddTask() {
-        Task task = new Task("Task 1", "Description 1", "01/01/2022");
+        Task task = new Task("Task 1", "Description 1", LocalDate.now());
 
         when(taskService.addTask(task)).thenReturn(task);
 
@@ -81,10 +82,10 @@ public class TaskControllerTest {
     @Test
     public void testUpdateTask() {
         long taskId = 1L;
-        Task existingTask = new Task("Task 1", "Description 1", "01/01/2022");
+        Task existingTask = new Task("Task 1", "Description 1", LocalDate.now());
         existingTask.setId(taskId);
 
-        Task updatedTask = new Task("Updated Task","Updated Description","02/01/2022");
+        Task updatedTask = new Task("Updated Task","Updated Description",LocalDate.now());
 
         when(taskService.getTaskById(taskId)).thenReturn(existingTask);
         when(taskService.updateTask(taskId, updatedTask)).thenReturn(updatedTask);

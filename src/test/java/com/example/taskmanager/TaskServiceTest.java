@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +34,8 @@ class TaskServiceTest {
     @Test
     void getAllTasks_ReturnsListOfTasks() {
         List<Task> tasks = new ArrayList<>();
-        tasks.add(new Task("Task 1", "Description 1", "01/01/2022"));
-        tasks.add(new Task("Task 2", "Description 2", "02/01/2022"));
+        tasks.add(new Task("Task 1", "Description 1", LocalDate.now()));
+        tasks.add(new Task("Task 2", "Description 2", LocalDate.now()));
         when(taskRepository.findAll()).thenReturn(tasks);
 
         List<Task> result = taskService.getAllTasks();
@@ -48,7 +49,7 @@ class TaskServiceTest {
     @Test
     void getTaskById_ExistingTaskId_ReturnsTask() {
         Long taskId = 1L;
-        Task task = new Task("Task 1", "Description 1", "01/01/2022");
+        Task task = new Task("Task 1", "Description 1", LocalDate.now());
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
         Task result = taskService.getTaskById(taskId);
@@ -68,7 +69,7 @@ class TaskServiceTest {
 
     @Test
     void addTask_ValidTask_ReturnsSavedTask() {
-        Task task = new Task("Task 1", "Description 1", "01/01/2022");
+        Task task = new Task("Task 1", "Description 1", LocalDate.now());
         when(taskRepository.save(task)).thenReturn(task);
 
         Task result = taskService.addTask(task);
@@ -79,7 +80,7 @@ class TaskServiceTest {
 
     @Test
     void addTask_TaskWithNullName_ThrowsIllegalArgumentException() {
-        Task task = new Task(null, "Description 1", "01/01/2022");
+        Task task = new Task(null, "Description 1", LocalDate.now());
 
         assertThrows(IllegalArgumentException.class, () -> taskService.addTask(task));
         verify(taskRepository, never()).save(task);
@@ -88,8 +89,8 @@ class TaskServiceTest {
     @Test
     void updateTask_ExistingTaskId_ReturnsUpdatedTask() {
         Long taskId = 1L;
-        Task existingTask = new Task("Task 1", "Description 1", "01/01/2022");
-        Task updatedTask = new Task("Updated Task", "Updated Description", "02/01/2022");
+        Task existingTask = new Task("Task 1", "Description 1", LocalDate.now());
+        Task updatedTask = new Task("Updated Task", "Updated Description", LocalDate.now());
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(existingTask)).thenReturn(existingTask);
 
@@ -105,7 +106,7 @@ class TaskServiceTest {
     @Test
     void updateTask_NonExistingTaskId_ThrowsTaskNotFoundException() {
         Long taskId = 1L;
-        Task updatedTask = new Task("Updated Task", "Updated Description", "02/01/2022");
+        Task updatedTask = new Task("Updated Task", "Updated Description", LocalDate.now());
         when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
 
         assertThrows(TaskNotFoundException.class, () -> taskService.updateTask(taskId, updatedTask));
@@ -116,7 +117,7 @@ class TaskServiceTest {
     @Test
     void deleteTask_ExistingTaskId_DeletesTask() {
         Long taskId = 1L;
-        Task task = new Task("Task 1", "Description 1", "01/01/2022");
+        Task task = new Task("Task 1", "Description 1", LocalDate.now());
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
         taskService.deleteTask(taskId);

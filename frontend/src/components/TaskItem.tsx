@@ -15,7 +15,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit }) => {
     <div className="task-item" onClick={handleEditClick}>
       <div>Title: {task.name}</div>
       <div>Description: {task.description}</div>
-      <div>Due Date: {task.dueDate}</div>
+      <div>Due Date: {task.dueDate.toString()}</div>
     </div>
   );
 };
