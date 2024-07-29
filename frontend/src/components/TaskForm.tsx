@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Task from "../models/Task";
 import "../styles/TaskForm.css";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CloseButton from "./CloseButton";
@@ -9,8 +8,9 @@ import TaskDropDownMenu from "./TaskDropdownMenu";
 import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateToDMYString } from "../utility/DateFormatter";
+import axiosInstance from "./axiosInstance";
 
-const TASKS_API_URL = "http://localhost:8080/tasks";
+const TASKS_API_URL = "/tasks";
 
 interface TaskFormProps {
   task: Task;
@@ -61,7 +61,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     }
     try {
       const formattedDate = formatDateToDMYString(formData.dueDate);
-      const response = await axios.post(TASKS_API_URL, {
+      const response = await axiosInstance.post(TASKS_API_URL, {
         ...formData,
         dueDate: formattedDate,
       });

@@ -21,14 +21,12 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks() {
         List<Task> tasks = taskService.getAllTasks();
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping("/{taskId}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long taskId) {
         Task task = taskService.getTaskById(taskId);
@@ -39,7 +37,6 @@ public class TaskController {
 
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping
     public ResponseEntity<?> addTask(@RequestBody Task newTask) {
         try {
@@ -54,14 +51,12 @@ public class TaskController {
         }
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @PutMapping("/{taskId}")
     public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody Task task) {
         Task updatedTask = taskService.updateTask(taskId, task);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
         taskService.deleteTask(taskId);

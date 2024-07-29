@@ -22,21 +22,18 @@ public class TaskColumnOrderController {
         this.taskColumnOrderService = taskColumnOrderService;
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping
     public ResponseEntity<List<TaskColumnOrder>> getTaskColumnOrder() {
         List<TaskColumnOrder> taskColumnOrder = taskColumnOrderService.getTaskColumnOrder();
         return new ResponseEntity<>(taskColumnOrder, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping
     public ResponseEntity<?> saveTaskColumnOrder(@RequestBody TaskColumnOrder taskColumnOrder) {
         TaskColumnOrder result = taskColumnOrderService.saveTaskColumnOrder(taskColumnOrder);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @CrossOrigin(origins = "http://localhost:5173")
     @GetMapping("/{columnId}")
     public ResponseEntity<TaskColumnOrder> getTaskColumnOrderById(@PathVariable Long columnId) {
         TaskColumnOrder taskColumnOrder = taskColumnOrderService.getTaskColumnOrderById(columnId);
