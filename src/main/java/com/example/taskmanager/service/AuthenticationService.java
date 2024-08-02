@@ -106,7 +106,7 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    public ResponseEntity refreshToken(
+    public ResponseEntity<?> refreshToken(
             HttpServletRequest request,
             HttpServletResponse response) {
         // extract the token from authorization header
