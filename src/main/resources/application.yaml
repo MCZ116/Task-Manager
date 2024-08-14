@@ -1,4 +1,6 @@
 spring:
+  api:
+    url: http://localhost:8080
   datasource:
     url: jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false
     driver-class-name: org.h2.Driver
@@ -31,3 +33,10 @@ application:
       secret-key: 4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c
       access-token-expiration: 86400000
       refresh-token-expiration: 604800000
+
+file:
+  upload-dir: ../uploads/
+
+logging:
+  level:
+    org.springframework.security: DEBUG

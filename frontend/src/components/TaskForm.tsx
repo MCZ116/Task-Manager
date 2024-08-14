@@ -8,7 +8,7 @@ import TaskDropDownMenu from "./TaskDropdownMenu";
 import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateToDMYString } from "../utility/DateFormatter";
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../utility/axiosInstance";
 
 const TASKS_API_URL = "/tasks";
 

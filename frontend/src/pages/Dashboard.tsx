@@ -11,7 +11,7 @@ import TaskColumnOrder from "../models/TaskColumnOrder";
 import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateAsDMY } from "../utility/DateFormatter";
-import axiosInstance from "../components/axiosInstance";
+import axiosInstance from "../utility/axiosInstance";
 
 const TASKS_API_URL = "/tasks";
 const TASKS_COLUMN_ORDER_API_URL = "/tasksColumnOrder";
