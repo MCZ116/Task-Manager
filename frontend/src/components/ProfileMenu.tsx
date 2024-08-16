@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axiosInstance from "../utility/axiosInstance";
 import Avatar from "./Avatar";
 import DropDownItem from "./DropdownItem";
+import { useNavigate } from "react-router-dom";
 
 interface AvatarResponse {
   avatarUrl: string | null;
@@ -12,6 +13,7 @@ interface AvatarResponse {
 const ProfileMenu: React.FC = () => {
   const [, setFile] = useState<string | undefined>();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserAvatar();
@@ -79,6 +81,16 @@ const ProfileMenu: React.FC = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      navigate("/signin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div className="d-flex justify-content-center align-items-center">
       <Dropdown align="end">
@@ -89,9 +101,15 @@ const ProfileMenu: React.FC = () => {
         <Dropdown.Menu>
           <DropDownItem
             itemText={"Upload New Avatar"}
-            onAction={handleUpload}
+            onChange={handleUpload}
             id="file-upload"
             type="file"
+          />
+          <DropDownItem
+            itemText={"Logout"}
+            onClick={handleLogout}
+            id="button"
+            type="button"
           />
         </Dropdown.Menu>
       </Dropdown>

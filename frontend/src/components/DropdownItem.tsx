@@ -1,29 +1,42 @@
+import React, { ChangeEvent, MouseEvent } from "react";
 import { Dropdown } from "react-bootstrap";
 
 interface DropDownItemProps {
-  onAction: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   itemText: string;
   id: string;
-  type: string;
+  type: "file" | "button";
 }
 
 const DropDownItem: React.FC<DropDownItemProps> = ({
-  onAction,
+  onChange,
+  onClick,
   itemText,
   id,
   type,
 }) => {
   return (
     <div>
-      <Dropdown.Item as="label" style={{ cursor: "pointer" }}>
-        {itemText}
-        <input
-          id={id}
-          type={type}
-          onChange={onAction}
-          style={{ display: "none" }}
-        />
-      </Dropdown.Item>
+      {type === "file" ? (
+        <Dropdown.Item as="label" style={{ cursor: "pointer" }}>
+          {itemText}
+          <input
+            id={id}
+            type="file"
+            onChange={onChange}
+            style={{ display: "none" }}
+          />
+        </Dropdown.Item>
+      ) : (
+        <Dropdown.Item
+          as="button"
+          style={{ cursor: "pointer", border: "none", background: "none" }}
+          onClick={onClick}
+        >
+          {itemText}
+        </Dropdown.Item>
+      )}
     </div>
   );
 };
