@@ -9,11 +9,13 @@ import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateToDMYString } from "../utility/DateFormatter";
 import axiosInstance from "../utility/axiosInstance";
+import UserList from "./UserList";
 
 const TASKS_API_URL = "/tasks";
 
 interface TaskFormProps {
   task: Task;
+  user: User[];
   onSave: (updatedTask: Task, taskState: TaskState) => void;
   onClose: () => void;
   onDelete: (taskId: number, taskState: TaskState) => void;
@@ -21,12 +23,24 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({
   task,
+  user,
   onSave,
   onClose,
   onDelete,
 }) => {
   const [formData, setFormData] = useState<Task>({ ...task });
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    console.log("Selected value:", value);
+    console.log("Selected name:", name);
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: Number(value),
+    }));
+    console.log(formData.assignedUserId + "ID");
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -88,6 +102,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
             name="name"
             value={formData.name}
             onChange={handleInputChange}
+          />
+          <UserList
+            selectedUserId={formData.assignedUserId}
+            onUserSelect={handleSelectChange}
+            user={user}
           />
         </div>
         <div>

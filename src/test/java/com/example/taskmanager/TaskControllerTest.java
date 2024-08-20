@@ -35,8 +35,8 @@ public class TaskControllerTest {
     @Test
     public void testGetAllTasks() {
         List<Task> tasks = new ArrayList<>();
-        tasks.add(new Task("Task 1", "Description 1", LocalDate.now()));
-        tasks.add(new Task("Task 2", "Description 2", LocalDate.now()));
+        tasks.add(new Task("Task 1", "Description 1", LocalDate.now(),1L));
+        tasks.add(new Task("Task 2", "Description 2", LocalDate.now(),2L));
 
         when(taskService.getAllTasks()).thenReturn(tasks);
 
@@ -49,7 +49,7 @@ public class TaskControllerTest {
     @Test
     public void testGetTaskById() {
         long taskId = 1L;
-        Task task = new Task("Task 1", "Description 1", LocalDate.now());
+        Task task = new Task("Task 1", "Description 1", LocalDate.now(),1L);
 
         when(taskService.getTaskById(taskId)).thenReturn(task);
 
@@ -69,7 +69,7 @@ public class TaskControllerTest {
 
     @Test
     public void testAddTask() {
-        Task task = new Task("Task 1", "Description 1", LocalDate.now());
+        Task task = new Task("Task 1", "Description 1", LocalDate.now(),1L);
 
         when(taskService.addTask(task)).thenReturn(task);
 
@@ -82,10 +82,10 @@ public class TaskControllerTest {
     @Test
     public void testUpdateTask() {
         long taskId = 1L;
-        Task existingTask = new Task("Task 1", "Description 1", LocalDate.now());
+        Task existingTask = new Task("Task 1", "Description 1", LocalDate.now(),1L);
         existingTask.setId(taskId);
 
-        Task updatedTask = new Task("Updated Task","Updated Description",LocalDate.now());
+        Task updatedTask = new Task("Updated Task","Updated Description",LocalDate.now(),5L);
 
         when(taskService.getTaskById(taskId)).thenReturn(existingTask);
         when(taskService.updateTask(taskId, updatedTask)).thenReturn(updatedTask);
