@@ -16,6 +16,7 @@ public class Task {
     private Long id;
     private String name;
     private String description;
+    private Long assignedUserId;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dueDate;
@@ -24,10 +25,11 @@ public class Task {
 
     }
 
-    public Task(String name, String description, LocalDate dueDate) {
+    public Task(String name, String description, LocalDate dueDate, Long assignedUserId) {
         this.name = name;
         this.description = description;
         this.dueDate = dueDate;
+        this.assignedUserId = assignedUserId;
     }
 
     public Long getId() {
@@ -60,6 +62,15 @@ public class Task {
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    
+    public Long getAssignedUserId() {
+        return assignedUserId;
+    }
+
+    public void setAssignedUserId(Long assignedUserId) {
+        this.assignedUserId = assignedUserId;
     }
 
     @Override

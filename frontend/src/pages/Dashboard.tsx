@@ -12,6 +12,7 @@ import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateAsDMY } from "../utility/DateFormatter";
 import axiosInstance from "../utility/axiosInstance";
+import { fetchUsers } from "../services/userService";
 
 const TASKS_API_URL = "/tasks";
 const TASKS_COLUMN_ORDER_API_URL = "/tasksColumnOrder";
@@ -20,8 +21,18 @@ const Dashboard: React.FC = () => {
   const [taskState, setTaskState] = useState<TaskState>(initialTaskState);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [user, setUser] = useState<User[]>([]);
 
   useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const usersData = await fetchUsers();
+        setUser(usersData);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+      }
+    };
+    loadUsers();
     fetchData();
   }, []);
 
@@ -76,7 +87,13 @@ const Dashboard: React.FC = () => {
 
   const handleAddTask = () => {
     setShowTaskForm(true);
-    setEditingTask({ id: 0, name: "", description: "", dueDate: new Date() });
+    setEditingTask({
+      id: 0,
+      name: "",
+      description: "",
+      dueDate: new Date(),
+      assignedUserId: 0,
+    });
   };
   const handleEdit = (task: Task) => {
     const formattedDate = formatDateAsDMY(task.dueDate);
@@ -287,8 +304,10 @@ const Dashboard: React.FC = () => {
                 name: "",
                 description: "",
                 dueDate: new Date(),
+                assignedUserId: 0,
               }
             }
+            user={user}
             onSave={handleSaveTask}
             onClose={handleCloseTaskForm}
             onDelete={handleDelete}

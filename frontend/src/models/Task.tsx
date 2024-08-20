@@ -3,6 +3,7 @@ interface Task {
   name: string;
   description: string;
   dueDate: Date;
+  assignedUserId: number;
 }
 
 export default Task;
