@@ -5,6 +5,7 @@ import com.example.taskmanager.service.UserDetailsServiceImp;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${spring.frontend.url}")
+    private String url;
 
     private final UserDetailsServiceImp userDetailsServiceImp;
 
@@ -46,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
                         var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
+                        corsConfiguration.setAllowedOrigins(List.of(url));
                         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                         corsConfiguration.setAllowedHeaders(List.of("*"));
                         corsConfiguration.setAllowCredentials(true);
