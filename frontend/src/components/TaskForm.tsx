@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Task from "../models/Task";
 import "../styles/TaskForm.css";
-import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CloseButton from "./CloseButton";
@@ -9,11 +8,14 @@ import TaskDropDownMenu from "./TaskDropdownMenu";
 import TaskState from "../models/TaskState";
 import initialTaskState from "../models/InitialTaskState";
 import { formatDateToDMYString } from "../utility/DateFormatter";
+import axiosInstance from "../utility/axiosInstance";
+import UserList from "./UserList";
 
-const TASKS_API_URL = "http://localhost:8080/tasks";
+const TASKS_API_URL = "/tasks";
 
 interface TaskFormProps {
   task: Task;
+  user: User[];
   onSave: (updatedTask: Task, taskState: TaskState) => void;
   onClose: () => void;
   onDelete: (taskId: number, taskState: TaskState) => void;
@@ -21,12 +23,24 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({
   task,
+  user,
   onSave,
   onClose,
   onDelete,
 }) => {
   const [formData, setFormData] = useState<Task>({ ...task });
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    console.log("Selected value:", value);
+    console.log("Selected name:", name);
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: Number(value),
+    }));
+    console.log(formData.assignedUserId + "ID");
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,7 +75,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
     }
     try {
       const formattedDate = formatDateToDMYString(formData.dueDate);
-      const response = await axios.post(TASKS_API_URL, {
+      const response = await axiosInstance.post(TASKS_API_URL, {
         ...formData,
         dueDate: formattedDate,
       });
@@ -88,6 +102,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
             name="name"
             value={formData.name}
             onChange={handleInputChange}
+          />
+          <UserList
+            selectedUserId={formData.assignedUserId}
+            onUserSelect={handleSelectChange}
+            user={user}
           />
         </div>
         <div>

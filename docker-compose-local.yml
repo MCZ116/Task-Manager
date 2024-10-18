@@ -1,0 +1,49 @@
+name: task-manager
+
+services:
+  app:
+    build:
+      context: ./frontend
+      dockerfile: docker/Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - node_modules:/app/node_modules
+    networks:
+      - task-manager-network
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - '8080:8080'
+    volumes:
+      - .:/app
+      - /app/target
+    networks:
+      - task-manager-network  
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  h2:
+    hostname: 'h2'
+    image: oscarfonts/h2
+    ports:
+      - "8181:8181"
+      - "1521:1521"
+    volumes:
+      - h2-data:/opt/h2-data
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/data.sql
+    networks:
+      - task-manager-network  
+
+networks:
+  task-manager-network:
+    name: task-manager-network
+    external: true
+
+volumes:
+  node_modules:
+  h2-data:

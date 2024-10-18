@@ -1,0 +1,44 @@
+spring:
+  api:
+    url: ${API_URL}
+  frontend:
+    url: ${APP_FRONTEND_URL}
+  datasource:
+    url: ${H2_URL}
+    driver-class-name: ${H2_DRIVER}
+    username: ${H2_USERNAME}
+    password: ${H2_PASSWORD}
+    initialization-mode: always
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        trace: false
+        web-allow-others: false
+  thymeleaf:
+    check-template-location: false
+  jpa:
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        globally-quoted-identifiers: true
+    hibernate:
+      ddl-auto: update
+    sql:
+      init:
+        mode: always
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      access-token-expiration: 300000
+      refresh-token-expiration: 604800000
+
+file:
+  upload-dir: ../uploads/
+
+logging:
+  level:
+    org.springframework.security: ${SPRING_BOOT_SECURITY}

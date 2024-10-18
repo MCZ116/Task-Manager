@@ -1,26 +1,37 @@
 ## Description
 
-Task manager project is created used Java and Spring Boot in backend and React frontend, temporarily using h2 database for development and testing purposes.
+Task manager project is created used Java and Spring Boot, temporarily using h2 database for development and testing purposes.
 
 ## Running
-* Clone this repository:
+
+- Clone this repository:
+
 ```
     $ git clone https://github.com/MCZ116/Task-Manager.git
 ```
 
-* Install maven dependencies:
+- Install maven dependencies:
+
 ```
     mvn install
 ```
 
-* Run backend:
+- Build package:
+
 ```
-    java -jar target/task-manager-x.x.x-SNAPSHOT.jar
+    mvn package
 ```
 
-* Run frontend in directory frontend:
+- Run backend:
+
 ```
-    npm start
+    java -jar target/task-manager-0.0.1-SNAPSHOT.jar
 ```
 
-* In browser enter http://localhost:5173
+- Run frontend from frontend folder
+
+```
+    npm run dev
+```
+
+- In browser enter http://localhost:5173/signin
