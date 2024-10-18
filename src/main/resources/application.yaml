@@ -1,11 +1,13 @@
 spring:
   api:
-    url: http://localhost:8080
+    url: ${API_URL}
+  frontend:
+    url: ${APP_FRONTEND_URL}
   datasource:
-    url: jdbc:h2:mem:testdb;DATABASE_TO_UPPER=false
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    url: ${H2_URL}
+    driver-class-name: ${H2_DRIVER}
+    username: ${H2_USERNAME}
+    password: ${H2_PASSWORD}
     initialization-mode: always
   h2:
     console:
@@ -30,7 +32,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key: 4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c
+      secret-key: ${JWT_SECRET_KEY}
       access-token-expiration: 300000
       refresh-token-expiration: 604800000
 
@@ -39,4 +41,4 @@ file:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: ${SPRING_BOOT_SECURITY}
