@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import "../App.css";
 import "../styles/TaskTable.css";
 import Sidebar from "../components/Sidebar";

@@ -2,7 +2,7 @@ import React from "react";
 import TaskItem from "./TaskItem";
 import Task from "../models/Task";
 import "../styles/TaskList.css";
-import { Draggable } from "react-beautiful-dnd";
+import { Draggable } from "@hello-pangea/dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 import AddTaskButton from "./AddTaskButton";
 
