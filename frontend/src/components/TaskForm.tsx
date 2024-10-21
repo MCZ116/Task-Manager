@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import Task from "../models/Task";
+import Task from "../interfaces/Task";
 import "../styles/TaskForm.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import CloseButton from "./CloseButton";
 import TaskDropDownMenu from "./TaskDropdownMenu";
-import TaskState from "../models/TaskState";
-import initialTaskState from "../models/InitialTaskState";
+import TaskState from "../interfaces/TaskState";
+import initialTaskState from "../state/InitialTaskState";
 import { formatDateToDMYString } from "../utility/DateFormatter";
 import axiosInstance from "../utility/axiosInstance";
 import UserList from "./UserList";

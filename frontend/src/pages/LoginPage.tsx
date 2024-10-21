@@ -1,34 +1,18 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/LoginForm.css";
+import { useAuth } from "../contexts/AuthProvider";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;
+  const auth = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    try {
-      const response = await axios.post(
-        API_URL+"/api/auth/signin",
-        {
-          username,
-          password,
-        }
-      );
-
-      localStorage.setItem("access_token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
-      alert("Invalid credentials");
-    }
+    await auth?.login(username, password);
+    navigate("/dashboard");
   };
 
   return (

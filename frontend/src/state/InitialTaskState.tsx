@@ -1,4 +1,4 @@
-import TaskState from "./TaskState";
+import TaskState from "../interfaces/TaskState";
 
 const initialTaskState: TaskState = {
   readyToDo: [],
