@@ -1,5 +1,5 @@
 import "../styles/TaskItem.css";
-import Task from "../models/Task";
+import Task from "../interfaces/Task";
 
 interface TaskItemProps {
   task: Task;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Draggable } from "@hello-pangea/dnd";
-import Task from "../models/Task";
+import Task from "../interfaces/Task";
 import "../styles/TaskTable.css";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 import TaskItem from "./TaskItem";
