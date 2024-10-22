@@ -23,6 +23,12 @@ import {
   getTaskPosition,
   saveTaskPosition,
 } from "../services/taskColumnOrderService";
+import {
+  setTasksForColumn,
+  updateTaskStateForDeleting,
+  updateTaskStateForExistingTask,
+  updateTaskStateForNewTask,
+} from "../state/taskState";
 
 const Dashboard: React.FC = () => {
   const [taskState, setTaskState] = useState<TaskState>(initialTaskState);
@@ -100,6 +106,7 @@ const Dashboard: React.FC = () => {
       assignedUserId: 0,
     });
   };
+
   const handleEdit = (task: Task) => {
     const formattedDate = formatDateAsDMY(task.dueDate);
     setEditingTask((prevState) => ({
@@ -117,22 +124,14 @@ const Dashboard: React.FC = () => {
       if (isNewTask) {
         const savedTask = await addNewTask(updatedTask);
 
-        setTaskState((prevState) => ({
-          ...prevState,
-          readyToDo: [savedTask, ...prevState.readyToDo],
-        }));
+        updateTaskStateForNewTask(savedTask, setTaskState);
         saveTaskPosition(savedTask.id, "readyToDo", 0);
       } else {
         const savedTask = await editTask(updatedTask);
         const editedTask = await getTaskPosition(updatedTask);
         const columnKey = determineColumnKey(editedTask.columnName);
 
-        setTaskState((prevState) => ({
-          ...prevState,
-          [columnKey]: prevState[columnKey].map((task) =>
-            task.id === savedTask.id ? savedTask : task
-          ),
-        }));
+        updateTaskStateForExistingTask(savedTask, columnKey, setTaskState);
       }
 
       setShowTaskForm(false);
@@ -167,19 +166,7 @@ const Dashboard: React.FC = () => {
   const handleDelete = async (taskId: number) => {
     try {
       await deleteTask(taskId);
-
-      setTaskState((prevState) => {
-        const updatedState: TaskState = { ...prevState };
-        Object.keys(updatedState).forEach((columnName) => {
-          if (Array.isArray(updatedState[columnName])) {
-            updatedState[columnName as keyof TaskState] = (
-              updatedState[columnName as keyof TaskState] as Task[]
-            ).filter((task) => task.id !== taskId);
-          }
-        });
-        return updatedState;
-      });
-
+      updateTaskStateForDeleting(taskId, setTaskState);
       setShowTaskForm(false);
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -208,7 +195,7 @@ const Dashboard: React.FC = () => {
         source.index,
         destination.index
       );
-      setTasksForColumn(sourceColumnId, updatedTasks);
+      setTasksForColumn(sourceColumnId, updatedTasks, setTaskState);
 
       updatedTasks.forEach((task, index) => {
         saveTaskPosition(task.id, sourceColumnId, index);
@@ -221,8 +208,8 @@ const Dashboard: React.FC = () => {
       sourceTasks.splice(source.index, 1);
       destinationTasks.splice(destination.index, 0, movedTask);
 
-      setTasksForColumn(sourceColumnId, sourceTasks);
-      setTasksForColumn(destinationColumnId, destinationTasks);
+      setTasksForColumn(sourceColumnId, sourceTasks, setTaskState);
+      setTasksForColumn(destinationColumnId, destinationTasks, setTaskState);
 
       destinationTasks.forEach((task, index) => {
         saveTaskPosition(task.id, destinationColumnId, index);
@@ -246,13 +233,6 @@ const Dashboard: React.FC = () => {
       default:
         return taskState.readyToDo;
     }
-  };
-
-  const setTasksForColumn = (columnId: string, updatedTasks: Task[]) => {
-    setTaskState((prevTaskState) => ({
-      ...prevTaskState,
-      [columnId]: updatedTasks,
-    }));
   };
 
   const reorder = (
