@@ -176,45 +176,69 @@ const Dashboard: React.FC = () => {
   const handleDragDrop = async (results: DropResult) => {
     const { source, destination } = results;
 
-    if (!destination) return;
-
-    const sourceColumnId = source.droppableId;
-    const destinationColumnId = destination.droppableId;
-
     if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
     )
       return;
 
+    const sourceColumnId = source.droppableId;
+    const destinationColumnId = destination.droppableId;
     const movedTask = getTasks(sourceColumnId, taskState)[source.index];
 
     if (sourceColumnId === destinationColumnId) {
-      const updatedTasks = reorder(
-        getTasks(sourceColumnId, taskState),
+      handleReorderInSameColumn(
+        sourceColumnId,
         source.index,
         destination.index
       );
-      setTasksForColumn(sourceColumnId, updatedTasks, setTaskState);
-
-      updatedTasks.forEach((task, index) => {
-        saveTaskPosition(task.id, sourceColumnId, index);
-      });
     } else {
-      const sourceTasks = Array.from(getTasks(sourceColumnId, taskState));
-      const destinationTasks = Array.from(
-        getTasks(destinationColumnId, taskState)
+      handleMoveBetweenColumns(
+        sourceColumnId,
+        destinationColumnId,
+        source.index,
+        destination.index,
+        movedTask
       );
-      sourceTasks.splice(source.index, 1);
-      destinationTasks.splice(destination.index, 0, movedTask);
-
-      setTasksForColumn(sourceColumnId, sourceTasks, setTaskState);
-      setTasksForColumn(destinationColumnId, destinationTasks, setTaskState);
-
-      destinationTasks.forEach((task, index) => {
-        saveTaskPosition(task.id, destinationColumnId, index);
-      });
     }
+  };
+
+  const handleReorderInSameColumn = (
+    columnId: string,
+    fromIndex: number,
+    toIndex: number
+  ) => {
+    const updatedTasks = reorder(
+      getTasks(columnId, taskState),
+      fromIndex,
+      toIndex
+    );
+    setTasksForColumn(columnId, updatedTasks, setTaskState);
+    updateTaskPositions(updatedTasks, columnId);
+  };
+
+  const handleMoveBetweenColumns = (
+    sourceColumnId: string,
+    destinationColumnId: string,
+    fromIndex: number,
+    toIndex: number,
+    movedTask: Task
+  ) => {
+    const sourceTasks = [...getTasks(sourceColumnId, taskState)];
+    const destinationTasks = [...getTasks(destinationColumnId, taskState)];
+
+    sourceTasks.splice(fromIndex, 1);
+    destinationTasks.splice(toIndex, 0, movedTask);
+
+    setTasksForColumn(sourceColumnId, sourceTasks, setTaskState);
+    setTasksForColumn(destinationColumnId, destinationTasks, setTaskState);
+
+    updateTaskPositions(destinationTasks, destinationColumnId);
+  };
+
+  const updateTaskPositions = (tasks: Task[], columnId: string) => {
+    tasks.forEach((task, index) => saveTaskPosition(task.id, columnId, index));
   };
 
   const getTasks = (
