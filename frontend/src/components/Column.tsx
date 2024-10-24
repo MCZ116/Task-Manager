@@ -10,6 +10,7 @@ interface Column {
   columnName: string;
   droppableId: string;
   onEdit: (task: Task) => void;
+  user: User[];
 }
 
 const Column: React.FC<Column> = ({
@@ -17,6 +18,7 @@ const Column: React.FC<Column> = ({
   columnName,
   droppableId,
   onEdit,
+  user,
 }) => {
   return (
     <StrictModeDroppable droppableId={droppableId}>
@@ -40,7 +42,12 @@ const Column: React.FC<Column> = ({
                   {...provided.draggableProps}
                   ref={provided.innerRef}
                 >
-                  <TaskItem key={task.id} task={task} onEdit={onEdit} />
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onEdit={onEdit}
+                    user={user}
+                  />
                 </div>
               )}
             </Draggable>

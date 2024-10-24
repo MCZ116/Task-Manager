@@ -1,11 +1,12 @@
 #sidebar {
-  width: 180px;
-  height: 100%;
+  width: 220px;
+  height: 100vh;
   background: #000c18;
-  position: fixed;
   padding: 1rem !important;
   color: white;
   font-family: var(--bs-font-sans-serif);
+  margin-right: 10;
+  flex-shrink: 0;
 }
 
 #sidebar-title {

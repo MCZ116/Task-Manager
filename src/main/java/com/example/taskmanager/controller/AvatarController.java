@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,10 +45,9 @@ public class AvatarController {
     
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
-            String username = user.getUsername().split("@")[0];
             String userId = user.getId().toString();
 
-            Path userDir = Paths.get(uploadDir + File.separator + username + userId);
+            Path userDir = Paths.get(uploadDir + File.separator + userId);
             if (!Files.exists(userDir)) {
                 Files.createDirectories(userDir);
             }
@@ -66,7 +66,7 @@ public class AvatarController {
             Path path = userDir.resolve(fileName);
             Files.copy(file.getInputStream(), path);
 
-            String fileUrl = "/uploads/" + username + userId + "/" + fileName;
+            String fileUrl = "/uploads/" + userId + "/" + fileName;
 
             Map<String, String> response = new HashMap<>();
             response.put("fileUrl", fileUrl);
@@ -78,14 +78,10 @@ public class AvatarController {
         }
     }
 
-    @GetMapping("/user/avatar")
-    public ResponseEntity<Map<String, String>> getUserAvatar() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        String username = user.getUsername().split("@")[0];
-        String userId = user.getId().toString();
+    @GetMapping("/user/avatar/{userId}")
+    public ResponseEntity<Map<String, String>> getUserAvatar(@PathVariable Long userId) {
     
-        Path userDir = Paths.get(uploadDir + File.separator + username + userId);
+        Path userDir = Paths.get(uploadDir + File.separator + userId);
         String avatarUrl = null;
     
         try {
@@ -101,7 +97,7 @@ public class AvatarController {
                         }
                     }
 
-                    avatarUrl = url + "/uploads/" + username + userId + "/" + latestFile.getName();
+                    avatarUrl = url + "/uploads/" + userId + "/" + latestFile.getName();
                 }
             }
         } catch (Exception e) {

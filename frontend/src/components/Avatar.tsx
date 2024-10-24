@@ -4,26 +4,18 @@ import avatarDefault from "../assets/profile-default.svg";
 interface AvatarProps {
   url: string | null;
   setUrl: React.Dispatch<React.SetStateAction<string | null>>;
+  size: string;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ url, setUrl }) => {
+const Avatar: React.FC<AvatarProps> = ({ url, setUrl, size }) => {
   return (
-    <div>
+    <>
       {url ? (
-        <img
-          src={url}
-          alt="Avatar"
-          style={{ width: 40, height: 40, borderRadius: "50%" }}
-          onError={() => setUrl}
-        />
+        <img src={url} alt="Avatar" className={size} onError={() => setUrl} />
       ) : (
-        <img
-          src={avatarDefault}
-          alt="Avatar"
-          style={{ width: 40, height: 40, borderRadius: "50%" }}
-        />
+        <img src={avatarDefault} alt="Avatar" className={size} />
       )}
-    </div>
+    </>
   );
 };
 

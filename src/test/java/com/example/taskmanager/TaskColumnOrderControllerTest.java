@@ -1,11 +1,9 @@
 package com.example.taskmanager;
 
 import com.example.taskmanager.controller.TaskColumnOrderController;
-import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.TaskColumnOrder;
 import com.example.taskmanager.service.TaskColumnOrderService;
 import com.example.taskmanager.util.TaskColumnNotFoundException;
-import com.example.taskmanager.util.TaskNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

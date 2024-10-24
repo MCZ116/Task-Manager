@@ -33,13 +33,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    console.log("Selected value:", value);
-    console.log("Selected name:", name);
     setFormData((prevState) => ({
       ...prevState,
       [name]: Number(value),
     }));
-    console.log(formData.assignedUserId + "ID");
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
