@@ -7,10 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.taskmanager.dto.UserDTO;
+import com.example.taskmanager.service.JwtService;
 import com.example.taskmanager.service.UserService;
 
 @RestController
@@ -20,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) { this.userService = userService; }
+    public UserController(UserService userService, JwtService jwtService) { this.userService = userService; }
 
 
     @GetMapping("/users")
@@ -36,5 +38,9 @@ public class UserController {
 
     }
 
-    
+    @GetMapping("/user/details")
+    public ResponseEntity<UserDTO> getUserDetails(@RequestHeader("Authorization") String token) {
+        UserDTO user = userService.getUserByToken(token);
+        return ResponseEntity.ok(user);
+    }
 }

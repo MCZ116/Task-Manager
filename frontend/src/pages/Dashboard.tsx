@@ -272,8 +272,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragDrop}>
-      <Sidebar />
       <div className="content">
+        <Sidebar />
         {showTaskForm && (
           <TaskForm
             task={
@@ -296,6 +296,7 @@ const Dashboard: React.FC = () => {
           readyToDo={taskState.readyToDo}
           onEdit={handleEdit}
           onAddTask={handleAddTask}
+          user={user}
         />
         <TaskTable
           blocked={taskState.blocked}
@@ -303,6 +304,7 @@ const Dashboard: React.FC = () => {
           testing={taskState.testing}
           done={taskState.done}
           onEdit={handleEdit}
+          user={user}
         />
       </div>
     </DragDropContext>

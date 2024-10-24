@@ -1,6 +1,5 @@
 package com.example.taskmanager.controller;
 
-import com.example.taskmanager.models.Task;
 import com.example.taskmanager.models.TaskColumnOrder;
 import com.example.taskmanager.service.TaskColumnOrderService;
 import com.example.taskmanager.util.TaskColumnNotFoundException;
