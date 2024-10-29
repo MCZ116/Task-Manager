@@ -1,18 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../styles/LoginForm.css";
 import { useAuth } from "../contexts/AuthProvider";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
   const auth = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await auth?.login(username, password);
-    navigate("/dashboard");
   };
 
   return (
@@ -36,6 +33,7 @@ const LoginPage: React.FC = () => {
           />
         </div>
         <button type="submit">Sign In</button>
+        No account yet? <a href="/register">register here</a>
       </form>
     </div>
   );

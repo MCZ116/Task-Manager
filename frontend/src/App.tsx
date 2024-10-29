@@ -9,14 +9,16 @@ import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthProvider";
+import Registration from "./pages/Registration";
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<Navigate to="/signin" replace />} />
           <Route path="/signin" element={<LoginPage />} />
+          <Route path="/register" element={<Registration />} />
           <Route
             path="/dashboard"
             element={
@@ -26,8 +28,8 @@ const App: React.FC = () => {
             }
           />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 
