@@ -1,12 +1,16 @@
 package com.example.taskmanager.service;
 
+import com.example.taskmanager.dto.RegisterUserDto;
 import com.example.taskmanager.models.AuthenticationResponse;
+import com.example.taskmanager.models.Role;
 import com.example.taskmanager.models.Token;
 import com.example.taskmanager.models.User;
 import com.example.taskmanager.repository.TokenRepository;
 import com.example.taskmanager.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -40,21 +45,18 @@ public class AuthenticationService {
         this.authenticationManager = authenticationManager;
     }
 
-    public AuthenticationResponse register(User request) {
+    public AuthenticationResponse register(@Valid @RequestBody RegisterUserDto registerUserDto) {
 
         // check if user already exist. if exist than authenticate the user
-        if(repository.findByUsername(request.getUsername()).isPresent()) {
-            return new AuthenticationResponse(null, null,"User already exist");
+        if (repository.findByUsername(registerUserDto.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("User already exists");
         }
-
         User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-
-        user.setRole(request.getRole());
+        user.setFirstName(registerUserDto.getFirstName());
+        user.setLastName(registerUserDto.getLastName());
+        user.setUsername(registerUserDto.getUsername());
+        user.setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
+        user.setRole(Role.USER);
 
         user = repository.save(user);
 
