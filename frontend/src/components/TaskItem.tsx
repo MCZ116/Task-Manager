@@ -4,6 +4,7 @@ import clockIcon from "../assets/clock.svg";
 import Avatar from "./Avatar";
 import { useEffect, useState } from "react";
 import { getAvatarById, getImageAsBlob } from "../services/imageService";
+import { useAuth } from "../contexts/AuthProvider";
 
 interface TaskItemProps {
   task: Task;
@@ -13,6 +14,7 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit, user = [] }) => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const auth = useAuth();
 
   const handleEditClick = () => {
     onEdit(task);
@@ -20,7 +22,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit, user = [] }) => {
 
   useEffect(() => {
     fetchUserAvatar();
-  }, []);
+  }, [task.assignedUserId, auth?.avatarUrl]);
 
   const fetchUserAvatar = async () => {
     try {
@@ -57,7 +59,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit, user = [] }) => {
           </div>
         ))}
       {user.filter((user: User) => user.id === task.assignedUserId).length ===
-        0 && <p>User not found</p>}
+        0 && <p>No assigned user</p>}
       <div className="d-flex align-items-center mt-1">
         <img src={clockIcon} alt="clock icon" className="img-fluid me-1" />
         <span>{task.dueDate.toString()}</span>

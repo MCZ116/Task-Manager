@@ -25,12 +25,15 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   register: (registerData: RegisterUser) => Promise<void>;
   logout: () => void;
+  avatarUrl: string | null;
+  setAvatarUrl: (url: string | null) => void;
 }
 
 export function AuthProvider({ children }: AuthProvider) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const login = async (username: string, password: string) => {
     try {
@@ -83,7 +86,9 @@ export function AuthProvider({ children }: AuthProvider) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, register, avatarUrl, setAvatarUrl }}
+    >
       {children}
     </AuthContext.Provider>
   );

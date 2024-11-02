@@ -29,6 +29,7 @@ import {
   updateTaskStateForExistingTask,
   updateTaskStateForNewTask,
 } from "../state/taskState";
+import { defaultTask } from "../constants/defaultTask";
 
 const Dashboard: React.FC = () => {
   const [taskState, setTaskState] = useState<TaskState>(initialTaskState);
@@ -99,11 +100,7 @@ const Dashboard: React.FC = () => {
   const handleAddTask = () => {
     setShowTaskForm(true);
     setEditingTask({
-      id: 0,
-      name: "",
-      description: "",
-      dueDate: new Date(),
-      assignedUserId: 0,
+      ...defaultTask,
     });
   };
 
@@ -278,11 +275,7 @@ const Dashboard: React.FC = () => {
           <TaskForm
             task={
               editingTask || {
-                id: 0,
-                name: "",
-                description: "",
-                dueDate: new Date(),
-                assignedUserId: 0,
+                ...defaultTask,
               }
             }
             user={user}
