@@ -7,11 +7,13 @@ import DropDownItem from "./DropdownItem";
 import { useNavigate } from "react-router-dom";
 import { getUserByToken } from "../services/userService";
 import { getAvatarById, getImageAsBlob } from "../services/imageService";
+import { useAuth } from "../contexts/AuthProvider";
 
 const ProfileMenu: React.FC = () => {
   const [, setFile] = useState<string | undefined>();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
+  const auth = useAuth();
 
   useEffect(() => {
     fetchUserAvatar();
@@ -22,6 +24,7 @@ const ProfileMenu: React.FC = () => {
       const userId = await getUserByToken();
       const response = await getAvatarById(userId.id);
       const avatarUrl = response.avatarUrl;
+      auth?.setAvatarUrl(avatarUrl);
 
       if (avatarUrl) {
         const blobUrl = await getImageAsBlob(avatarUrl);
@@ -30,10 +33,8 @@ const ProfileMenu: React.FC = () => {
           URL.revokeObjectURL(avatarUrl);
         }
 
-        console.log(blobUrl);
         setAvatarUrl(blobUrl);
       }
-      console.log(response.avatarUrl);
     } catch (error) {
       console.error("Failed to fetch user avatar:", error);
     }
