@@ -6,16 +6,30 @@ import Sidebar from "../components/Sidebar";
 import TaskList from "../components/TaskList";
 import TaskForm from "../components/TaskForm";
 import TaskTable from "../components/TaskTable";
-import Task from "../models/Task";
-import TaskColumnOrder from "../models/TaskColumnOrder";
-import TaskState from "../models/TaskState";
-import initialTaskState from "../models/InitialTaskState";
+import Task from "../interfaces/Task";
+import TaskColumnOrder from "../interfaces/TaskColumnOrder";
+import TaskState from "../interfaces/TaskState";
+import initialTaskState from "../state/InitialTaskState";
 import { formatDateAsDMY } from "../utility/DateFormatter";
-import axiosInstance from "../utility/axiosInstance";
 import { fetchUsers } from "../services/userService";
-
-const TASKS_API_URL = "/tasks";
-const TASKS_COLUMN_ORDER_API_URL = "/tasksColumnOrder";
+import {
+  addNewTask,
+  deleteTask,
+  editTask,
+  getAllTask,
+} from "../services/taskService";
+import {
+  getAllTasksPosition,
+  getTaskPosition,
+  saveTaskPosition,
+} from "../services/taskColumnOrderService";
+import {
+  setTasksForColumn,
+  updateTaskStateForDeleting,
+  updateTaskStateForExistingTask,
+  updateTaskStateForNewTask,
+} from "../state/taskState";
+import { defaultTask } from "../constants/defaultTask";
 
 const Dashboard: React.FC = () => {
   const [taskState, setTaskState] = useState<TaskState>(initialTaskState);
@@ -38,11 +52,9 @@ const Dashboard: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const tasksResponse = await axiosInstance.get<Task[]>(TASKS_API_URL);
-      const columnOrderResponse = await axiosInstance.get<TaskColumnOrder[]>(
-        TASKS_COLUMN_ORDER_API_URL
-      );
-      distributeTasksToColumns(tasksResponse.data, columnOrderResponse.data);
+      const tasksResponse = await getAllTask();
+      const columnOrderResponse = await getAllTasksPosition();
+      distributeTasksToColumns(tasksResponse, columnOrderResponse);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -88,13 +100,10 @@ const Dashboard: React.FC = () => {
   const handleAddTask = () => {
     setShowTaskForm(true);
     setEditingTask({
-      id: 0,
-      name: "",
-      description: "",
-      dueDate: new Date(),
-      assignedUserId: 0,
+      ...defaultTask,
     });
   };
+
   const handleEdit = (task: Task) => {
     const formattedDate = formatDateAsDMY(task.dueDate);
     setEditingTask((prevState) => ({
@@ -110,37 +119,16 @@ const Dashboard: React.FC = () => {
       const isNewTask = editingTask?.id === 0;
 
       if (isNewTask) {
-        const response = await axiosInstance.post<Task>(
-          TASKS_API_URL,
-          updatedTask
-        );
-        const savedTask = response.data;
+        const savedTask = await addNewTask(updatedTask);
 
-        setTaskState((prevState) => ({
-          ...prevState,
-          readyToDo: [savedTask, ...prevState.readyToDo],
-        }));
+        updateTaskStateForNewTask(savedTask, setTaskState);
         saveTaskPosition(savedTask.id, "readyToDo", 0);
       } else {
-        const response = await axiosInstance.put(
-          `${TASKS_API_URL}/${updatedTask.id}`,
-          updatedTask
-        );
-        const savedTask = response.data;
-
-        const taskColumnOrderResponse =
-          await axiosInstance.get<TaskColumnOrder>(
-            `${TASKS_COLUMN_ORDER_API_URL}/${updatedTask.id}`
-          );
-        const editedTask = taskColumnOrderResponse.data;
+        const savedTask = await editTask(updatedTask);
+        const editedTask = await getTaskPosition(updatedTask);
         const columnKey = determineColumnKey(editedTask.columnName);
 
-        setTaskState((prevState) => ({
-          ...prevState,
-          [columnKey]: prevState[columnKey].map((task) =>
-            task.id === savedTask.id ? savedTask : task
-          ),
-        }));
+        updateTaskStateForExistingTask(savedTask, columnKey, setTaskState);
       }
 
       setShowTaskForm(false);
@@ -174,20 +162,8 @@ const Dashboard: React.FC = () => {
 
   const handleDelete = async (taskId: number) => {
     try {
-      await axiosInstance.delete(`${TASKS_API_URL}/${taskId}`);
-
-      setTaskState((prevState) => {
-        const updatedState: TaskState = { ...prevState };
-        Object.keys(updatedState).forEach((columnName) => {
-          if (Array.isArray(updatedState[columnName])) {
-            updatedState[columnName as keyof TaskState] = (
-              updatedState[columnName as keyof TaskState] as Task[]
-            ).filter((task) => task.id !== taskId);
-          }
-        });
-        return updatedState;
-      });
-
+      await deleteTask(taskId);
+      updateTaskStateForDeleting(taskId, setTaskState);
       setShowTaskForm(false);
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -197,63 +173,69 @@ const Dashboard: React.FC = () => {
   const handleDragDrop = async (results: DropResult) => {
     const { source, destination } = results;
 
-    if (!destination) return;
-
-    const sourceColumnId = source.droppableId;
-    const destinationColumnId = destination.droppableId;
-
     if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
+      !destination ||
+      (source.droppableId === destination.droppableId &&
+        source.index === destination.index)
     )
       return;
 
+    const sourceColumnId = source.droppableId;
+    const destinationColumnId = destination.droppableId;
     const movedTask = getTasks(sourceColumnId, taskState)[source.index];
 
     if (sourceColumnId === destinationColumnId) {
-      const updatedTasks = reorder(
-        getTasks(sourceColumnId, taskState),
+      handleReorderInSameColumn(
+        sourceColumnId,
         source.index,
         destination.index
       );
-      setTasksForColumn(sourceColumnId, updatedTasks);
-
-      updatedTasks.forEach((task, index) => {
-        saveTaskPosition(task.id, sourceColumnId, index);
-      });
     } else {
-      const sourceTasks = Array.from(getTasks(sourceColumnId, taskState));
-      const destinationTasks = Array.from(
-        getTasks(destinationColumnId, taskState)
+      handleMoveBetweenColumns(
+        sourceColumnId,
+        destinationColumnId,
+        source.index,
+        destination.index,
+        movedTask
       );
-      sourceTasks.splice(source.index, 1);
-      destinationTasks.splice(destination.index, 0, movedTask);
-
-      setTasksForColumn(sourceColumnId, sourceTasks);
-      setTasksForColumn(destinationColumnId, destinationTasks);
-
-      destinationTasks.forEach((task, index) => {
-        saveTaskPosition(task.id, destinationColumnId, index);
-      });
     }
   };
 
-  const saveTaskPosition = async (
-    taskId: number,
-    columnName: string,
-    index: number
+  const handleReorderInSameColumn = (
+    columnId: string,
+    fromIndex: number,
+    toIndex: number
   ) => {
-    const postData = {
-      taskId: taskId,
-      columnName: columnName,
-      index: index,
-    };
+    const updatedTasks = reorder(
+      getTasks(columnId, taskState),
+      fromIndex,
+      toIndex
+    );
+    setTasksForColumn(columnId, updatedTasks, setTaskState);
+    updateTaskPositions(updatedTasks, columnId);
+  };
 
-    try {
-      await axiosInstance.post(TASKS_COLUMN_ORDER_API_URL, postData);
-    } catch (error) {
-      console.error("Error updating task order:", error);
-    }
+  const handleMoveBetweenColumns = (
+    sourceColumnId: string,
+    destinationColumnId: string,
+    fromIndex: number,
+    toIndex: number,
+    movedTask: Task
+  ) => {
+    const sourceTasks = [...getTasks(sourceColumnId, taskState)];
+    const destinationTasks = [...getTasks(destinationColumnId, taskState)];
+
+    sourceTasks.splice(fromIndex, 1);
+    destinationTasks.splice(toIndex, 0, movedTask);
+
+    setTasksForColumn(sourceColumnId, sourceTasks, setTaskState);
+    setTasksForColumn(destinationColumnId, destinationTasks, setTaskState);
+
+    updateTaskPositions(destinationTasks, destinationColumnId);
+  };
+
+  const updateTaskPositions = (tasks: Task[], columnId: string) => {
+    tasks.forEach((task, index) => saveTaskPosition(task.id, columnId, index));
   };
 
   const getTasks = (
@@ -274,13 +256,6 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const setTasksForColumn = (columnId: string, updatedTasks: Task[]) => {
-    setTaskState((prevTaskState) => ({
-      ...prevTaskState,
-      [columnId]: updatedTasks,
-    }));
-  };
-
   const reorder = (
     list: Task[],
     startIndex: number,
@@ -294,17 +269,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <DragDropContext onDragEnd={handleDragDrop}>
-      <Sidebar />
       <div className="content">
+        <Sidebar />
         {showTaskForm && (
           <TaskForm
             task={
               editingTask || {
-                id: 0,
-                name: "",
-                description: "",
-                dueDate: new Date(),
-                assignedUserId: 0,
+                ...defaultTask,
               }
             }
             user={user}
@@ -318,6 +289,7 @@ const Dashboard: React.FC = () => {
           readyToDo={taskState.readyToDo}
           onEdit={handleEdit}
           onAddTask={handleAddTask}
+          user={user}
         />
         <TaskTable
           blocked={taskState.blocked}
@@ -325,6 +297,7 @@ const Dashboard: React.FC = () => {
           testing={taskState.testing}
           done={taskState.done}
           onEdit={handleEdit}
+          user={user}
         />
       </div>
     </DragDropContext>

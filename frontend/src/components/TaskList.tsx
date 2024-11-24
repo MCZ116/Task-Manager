@@ -1,6 +1,6 @@
 import React from "react";
 import TaskItem from "./TaskItem";
-import Task from "../models/Task";
+import Task from "../interfaces/Task";
 import "../styles/TaskList.css";
 import { Draggable } from "@hello-pangea/dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
@@ -10,12 +10,14 @@ interface TaskListProps {
   readyToDo: Task[];
   onEdit: (task: Task) => void;
   onAddTask: () => void;
+  user: User[];
 }
 
 const TaskList: React.FC<TaskListProps> = ({
   readyToDo,
   onEdit,
   onAddTask,
+  user,
 }) => {
   return (
     <StrictModeDroppable droppableId="readyToDo">
@@ -42,7 +44,12 @@ const TaskList: React.FC<TaskListProps> = ({
                   {...provided.draggableProps}
                   ref={provided.innerRef}
                 >
-                  <TaskItem key={task.id} task={task} onEdit={onEdit} />
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onEdit={onEdit}
+                    user={user}
+                  />
                 </div>
               )}
             </Draggable>

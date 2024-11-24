@@ -6,9 +6,8 @@ body {
 }
 
 .content {
+  position: relative;
   display: flex;
-  margin-left: 180px;
-  padding: 20px;
   height: auto;
   min-height: 100vh;
 }

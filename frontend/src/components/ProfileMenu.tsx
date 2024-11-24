@@ -5,15 +5,15 @@ import axiosInstance from "../utility/axiosInstance";
 import Avatar from "./Avatar";
 import DropDownItem from "./DropdownItem";
 import { useNavigate } from "react-router-dom";
-
-interface AvatarResponse {
-  avatarUrl: string | null;
-}
+import { getUserByToken } from "../services/userService";
+import { getAvatarById, getImageAsBlob } from "../services/imageService";
+import { useAuth } from "../contexts/AuthProvider";
 
 const ProfileMenu: React.FC = () => {
   const [, setFile] = useState<string | undefined>();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
+  const auth = useAuth();
 
   useEffect(() => {
     fetchUserAvatar();
@@ -21,40 +21,22 @@ const ProfileMenu: React.FC = () => {
 
   const fetchUserAvatar = async () => {
     try {
-      const response = await axiosInstance.get<AvatarResponse>("/user/avatar");
-      const avatarUrl = response.data.avatarUrl;
+      const userId = await getUserByToken();
+      const response = await getAvatarById(userId.id);
+      const avatarUrl = response.avatarUrl;
+      auth?.setAvatarUrl(avatarUrl);
 
       if (avatarUrl) {
-        const blobUrl = await fetchImageAsBlob(avatarUrl);
+        const blobUrl = await getImageAsBlob(avatarUrl);
 
         if (avatarUrl) {
           URL.revokeObjectURL(avatarUrl);
         }
 
-        console.log(blobUrl);
         setAvatarUrl(blobUrl);
       }
-      console.log(response.data.avatarUrl);
     } catch (error) {
       console.error("Failed to fetch user avatar:", error);
-    }
-  };
-
-  const fetchImageAsBlob = async (url: string) => {
-    try {
-      // Fetch the image with authorization using axiosInstance
-      const response = await axiosInstance.get(url, { responseType: "blob" });
-
-      if (response.status !== 200) {
-        console.error(`Failed to fetch image: ${response.statusText}`);
-        return null;
-      }
-
-      // Create a Blob URL from the fetched Blob
-      return URL.createObjectURL(response.data);
-    } catch (error) {
-      console.error("Error fetching the image as a blob:", error);
-      return null;
     }
   };
 
@@ -95,7 +77,11 @@ const ProfileMenu: React.FC = () => {
     <div className="d-flex justify-content-center align-items-center">
       <Dropdown align="end">
         <Dropdown.Toggle variant="link" id="dropdown-basic" className="p-0">
-          <Avatar url={avatarUrl} setUrl={setAvatarUrl} />
+          <Avatar
+            url={avatarUrl}
+            setUrl={setAvatarUrl}
+            size="w-25 rounded-circle"
+          />
         </Dropdown.Toggle>
 
         <Dropdown.Menu>

@@ -1,8 +1,10 @@
 .ready-to-do {
   margin-top: 20px;
+  margin-left: 10px;
   padding: 10px;
   background-color: #f4f4f4;
   border-radius: 10px;
   min-width: 230px;
   display: block;
+  position: relative;
 }

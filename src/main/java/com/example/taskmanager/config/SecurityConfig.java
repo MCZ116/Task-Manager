@@ -57,7 +57,7 @@ public class SecurityConfig {
                         return corsConfiguration;
                     }))
                 .authorizeHttpRequests(
-                        req->req.requestMatchers("/register/**", "/api/refresh_token","/api/auth/**")
+                        req->req.requestMatchers("/api/register/**", "/api/refresh_token","/api/auth/**")
                                 .permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .anyRequest()
